@@ -1,5 +1,7 @@
 import tkinter as tk
 
+Area = 500
+
 class body:
     def __init__(self, x, y, canv, v, r = 50, color = "green"):
         self.x = x
@@ -22,6 +24,7 @@ class body:
         self.canv.move(self.id, dx, dy)
         self.x += dx
         self.y += dy
+
 
 class tongue:
     def __init__(self, x, y, canv, r = 15, color = "pink", mode = 0, v = 15):
@@ -58,28 +61,104 @@ class tongue:
              self.y += dy
              if (l < self.v):
                  self.mode = 0
+    
+    def too_far(self):
+        self.mode = 0
         
     def new_mode(self, event):
         self.mode = 1
         self.target_x = event.x
         self.target_y = event.y
-        
+    
 
+class cornea:
+    def __init__(self, x, y, canv, r = 20, color = "white", nearness = 0.5):
+        self.x = x
+        self.y = y
+        self.canv = canv
+        self.r = r
+        self.color = color 
+        self.nearness = nearness
+        self.id = canv.create_oval(
+                self.x - self.r,
+                self.y - self.r,
+                self.x + self.r,
+                self.y + self.r,
+                fill=self.color)
+    def move(self, x0, y0):
+        self.canv.move(self.id, x0-self.x, y0-self.y)
+        self.x = x0
+        self.y = y0
+
+class pupil:
+    def __init__(self, x, y, canv, r = 7, color = "black", nearness = 0.5):
+        self.x = x
+        self.y = y
+        self.canv = canv
+        self.r = r
+        self.color = color 
+        self.nearness = nearness
+        self.id = canv.create_oval(
+                self.x - self.r,
+                self.y - self.r,
+                self.x + self.r,
+                self.y + self.r,
+                fill=self.color)
+    def move(self, x0, y0):
+        self.canv.move(self.id, x0-self.x, y0-self.y)
+        self.x = x0
+        self.y = y0
+
+    
 class frog:
-    def __init__(self, x, y, canv, v = 3):
+    def __init__(self, x, y, canv, v = 3, area = Area):
         self.connect = canv.create_line(x, y, x, y, width=5, fill="pink")
         self.tongue = tongue(x, y, canv)
         self.body = body(x, y, canv, v)
+        self.cornea1 = cornea(x, y, canv)
+        self.cornea2 = cornea(x, y, canv)
+        self.pupil1 = pupil(x, y, canv)
+        self.pupil2 = pupil(x, y, canv)
         self.canv = canv
+        self.area = area
         #self.x = x
         #self.y = y
         #self.v = v
      
+    def move_corneas(self, x0, y0):
+        delta_x = x0 - self.body.x
+        delta_y = y0 - self.body.y
+        l = (delta_x**2 + delta_y**2)**0.5
+        delta_x *= self.body.r/l
+        delta_y *= self.body.r/l
+        x1 = self.cornea1.nearness*(delta_x+delta_y)
+        y1 = self.cornea1.nearness*(delta_y-delta_x)
+        x2 = self.cornea2.nearness*(delta_x-delta_y)
+        y2 = self.cornea2.nearness*(delta_y+delta_x)
+        self.cornea1.move(self.body.x+x1, self.body.y+y1)
+        self.cornea2.move(self.body.x+x2, self.body.y+y2)
+        
+    def move_pupils(self, x0, y0):
+        delta_x1 = x0 - self.cornea1.x
+        delta_y1 = y0 - self.cornea1.y
+        delta_x2 = x0 - self.cornea2.x
+        delta_y2 = y0 - self.cornea2.y
+        l = (delta_x1**2 + delta_y1**2)**0.5
+        delta_x1 *= self.pupil1.nearness*self.cornea1.r/l
+        delta_y1 *= self.pupil1.nearness*self.cornea1.r/l
+        delta_x2 *= self.pupil2.nearness*self.cornea2.r/l
+        delta_y2 *= self.pupil2.nearness*self.cornea2.r/l
+        self.pupil1.move(self.cornea1.x+delta_x1, self.cornea1.y+delta_y1)
+        self.pupil2.move(self.cornea2.x+delta_x2, self.cornea2.y+delta_y2)
+        
+  
     def draw_new_connect(self):
         self.canv.delete(self.connect)
         delta_x = self.tongue.x - self.body.x
         delta_y = self.tongue.y - self.body.y
         l = (delta_x**2 + delta_y**2)**0.5
+        if (l > self.area):
+            self.tongue.too_far()
         if (l > self.body.r + self.tongue.r):
             x1 = self.body.x + delta_x*self.body.r/l
             y1 = self.body.y + delta_y*self.body.r/l
@@ -93,4 +172,8 @@ class frog:
         self.body.move(x0, y0)
         self.tongue.move(self.body.x, self.body.y)
         self.draw_new_connect()
+        self.move_corneas(x0, y0)
+        self.move_pupils(x0, y0)
+        #self.cornea1.move(x0, y0)
+        #self.cornea2.move(x0, y0)
         
