@@ -14,15 +14,22 @@ Eyes_nearess = 0.5
 Body_velocity = 3
 Tongue_velocity = 15
 
+#acceleration
+Boost = 3
+Boost_time = 30
+
 
 class body:
-    def __init__(self, x, y, canv, v, r = Body_size, color = "green"):
+    def __init__(self, x, y, canv, v, r = Body_size, color = "green", boost = Boost, boost_time = Boost_time):
         self.x = x
         self.y = y
         self.v = v 
         self.canv = canv
         self.r = r
         self.color = color 
+        self.boost = boost
+        self.boost_time = boost_time
+        self.boost_effect = 0
         self.id = canv.create_oval(
                 self.x - self.r,
                 self.y - self.r,
@@ -30,10 +37,15 @@ class body:
                 self.y + self.r,
                 fill=self.color)
     
+    def acceleration(self, event):
+        self.boost_effect = self.boost_time
+    
     def move(self, x0, y0):
+        v = self.v*(1+self.boost*bool(self.boost_effect))
+        self.boost_effect -= bool(self.boost_effect)
         l = ((x0 - self.x)**2 + (y0 - self.y)**2)**0.5
-        dx = (x0-self.x)*self.v/l 
-        dy = (y0-self.y)*self.v/l 
+        dx = (x0-self.x)*v/l 
+        dy = (y0-self.y)*v/l 
         self.canv.move(self.id, dx, dy)
         self.x += dx
         self.y += dy
@@ -102,6 +114,7 @@ class cornea:
         self.canv.move(self.id, x0-self.x, y0-self.y)
         self.x = x0
         self.y = y0
+
 
 class pupil:
     def __init__(self, x, y, canv, r = Pupil_size, color = "black", nearness = Eyes_nearess):
