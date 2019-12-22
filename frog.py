@@ -1,9 +1,22 @@
 import tkinter as tk
 
+#sizes
+Body_size = 50
+Tongue_size = 15
+Eye_size = 20
+Pupil_size = 7
+
+#scales
 Area = 500
+Eyes_nearess = 0.5
+
+#velocities
+Body_velocity = 3
+Tongue_velocity = 15
+
 
 class body:
-    def __init__(self, x, y, canv, v, r = 50, color = "green"):
+    def __init__(self, x, y, canv, v, r = Body_size, color = "green"):
         self.x = x
         self.y = y
         self.v = v 
@@ -27,7 +40,7 @@ class body:
 
 
 class tongue:
-    def __init__(self, x, y, canv, r = 15, color = "pink", mode = 0, v = 15):
+    def __init__(self, x, y, canv, r = Tongue_size, color = "pink", mode = 0, v = Tongue_velocity):
         self.x = x
         self.y = y 
         self.target_x = x
@@ -72,7 +85,7 @@ class tongue:
     
 
 class cornea:
-    def __init__(self, x, y, canv, r = 20, color = "white", nearness = 0.5):
+    def __init__(self, x, y, canv, r = Eye_size, color = "white", nearness = Eyes_nearess):
         self.x = x
         self.y = y
         self.canv = canv
@@ -91,7 +104,7 @@ class cornea:
         self.y = y0
 
 class pupil:
-    def __init__(self, x, y, canv, r = 7, color = "black", nearness = 0.5):
+    def __init__(self, x, y, canv, r = Pupil_size, color = "black", nearness = Eyes_nearess):
         self.x = x
         self.y = y
         self.canv = canv
@@ -111,7 +124,7 @@ class pupil:
 
     
 class frog:
-    def __init__(self, x, y, canv, v = 3, area = Area):
+    def __init__(self, x, y, canv, v = Body_velocity, area = Area):
         self.connect = canv.create_line(x, y, x, y, width=5, fill="pink")
         self.tongue = tongue(x, y, canv)
         self.body = body(x, y, canv, v)
@@ -121,9 +134,6 @@ class frog:
         self.pupil2 = pupil(x, y, canv)
         self.canv = canv
         self.area = area
-        #self.x = x
-        #self.y = y
-        #self.v = v
      
     def move_corneas(self, x0, y0):
         delta_x = x0 - self.body.x
@@ -174,6 +184,4 @@ class frog:
         self.draw_new_connect()
         self.move_corneas(x0, y0)
         self.move_pupils(x0, y0)
-        #self.cornea1.move(x0, y0)
-        #self.cornea2.move(x0, y0)
         
