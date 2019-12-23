@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter.font import BOLD
 
 #sizes
 Body_size = 50
@@ -8,7 +9,7 @@ Pupil_size = 7
 
 #scales
 Area = 500
-Eyes_nearess = 0.5
+Eyes_nearess = 0.55
 
 #velocities
 Body_velocity = 3
@@ -17,6 +18,11 @@ Tongue_velocity = 15
 #acceleration
 Boost = 3
 Boost_time = 30
+
+#frog
+Temp = 20
+Temp_step = 0.01
+M = 10
 
 
 class body:
@@ -134,13 +140,30 @@ class pupil:
         self.canv.move(self.id, x0-self.x, y0-self.y)
         self.x = x0
         self.y = y0
+        
+class temp_text:
+    def __init__(self, x, y, temp, canv):
+        self.x = x
+        self.y = y
+        self.canv = canv
+        self.id = self.canv.create_text(self.x, self.y, font=('arial', 18, BOLD), text = int(temp))
+    def move(self, x0, y0, temp):
+        self.canv.move(self.id, x0 - self.x, y0 - self.y)
+        self.x = x0
+        self.y = y0
+        self.canv.itemconfig(self.id, text=int(temp))
 
     
 class frog:
-    def __init__(self, x, y, canv, v = Body_velocity, area = Area):
+    def __init__(self, x, y, canv, v = Body_velocity, area = Area, temp = Temp, temp_step = Temp_step, m = M):
+        self.score = 0
+        self.temp = temp
+        self.temp_step = temp_step
+        self.m = m
         self.connect = canv.create_line(x, y, x, y, width=5, fill="pink")
         self.tongue = tongue(x, y, canv)
         self.body = body(x, y, canv, v)
+        self.temp_text = temp_text(x, y, temp, canv)
         self.cornea1 = cornea(x, y, canv)
         self.cornea2 = cornea(x, y, canv)
         self.pupil1 = pupil(x, y, canv)
@@ -190,6 +213,13 @@ class frog:
             self.connect = self.canv.create_line(x1, y1, x2, y2, width=5, fill="pink")
         else:
             self.connect = self.canv.create_line(0, 0, 0, 0)
+            
+    def tongue_hit(self, drop_temp):
+        self.temp = (self.m*self.temp + drop_temp)/(self.m + 1)
+        if (drop_temp > 0): self.score += 1
+     
+    def body_hit(self, drop_temp):
+        self.temp = (self.m*self.temp + drop_temp)/(self.m + 1)
     
     def move(self, x0, y0):
         self.body.move(x0, y0)
@@ -197,4 +227,6 @@ class frog:
         self.draw_new_connect()
         self.move_corneas(x0, y0)
         self.move_pupils(x0, y0)
+        self.temp_text.move(self.body.x, self.body.y, self.temp)
+        self.temp -= self.temp_step
         
