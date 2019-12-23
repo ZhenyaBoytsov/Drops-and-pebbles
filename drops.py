@@ -64,8 +64,8 @@ class drop:
 		self.temp=self.min_temp+(1-dtemp)*(self.temp-self.min_temp) # понижаем температуру
 		if (self.is_warm==1 and self.temp<0): # если температар больше нуля, делает льдинкой
 			self.make_ice()
-			dx=self.vx
-			dy=self.vy
+		dx=self.vx
+		dy=self.vy
 		# проверка столкновений с 4-мя стенками
 		if (self.x+dx<self.r):
 			dx=self.r-self.x
