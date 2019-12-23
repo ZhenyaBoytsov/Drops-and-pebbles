@@ -21,8 +21,8 @@ Boost_time = 30
 
 #frog
 Temp = 20
-Temp_step = 0.01
-M = 10
+Temp_step = 0.005
+M = 5
 
 
 class body:
@@ -153,6 +153,16 @@ class temp_text:
         self.y = y0
         self.canv.itemconfig(self.id, text=int(temp))
 
+class result:
+    def __init__(self, x, y, canv):
+        self.canv = canv
+        self.x = x
+        self.y = y
+        self.id = self.canv.create_text(self.x, self.y, font=('arial', 22, BOLD), text = "RESULT: ")
+    def rewrite(self, res, language):
+        if (language == 0): self.t = "RESULT: "
+        else: self.t = "СЧЁТ: "
+        self.canv.itemconfig(self.id, text = self.t + str(res))
     
 class frog:
     def __init__(self, x, y, canv, v = Body_velocity, area = Area, temp = Temp, temp_step = Temp_step, m = M):
@@ -196,8 +206,7 @@ class frog:
         delta_y2 *= self.pupil2.nearness*self.cornea2.r/l
         self.pupil1.move(self.cornea1.x+delta_x1, self.cornea1.y+delta_y1)
         self.pupil2.move(self.cornea2.x+delta_x2, self.cornea2.y+delta_y2)
-        
-  
+          
     def draw_new_connect(self):
         self.canv.delete(self.connect)
         delta_x = self.tongue.x - self.body.x
@@ -229,4 +238,7 @@ class frog:
         self.move_pupils(x0, y0)
         self.temp_text.move(self.body.x, self.body.y, self.temp)
         self.temp -= self.temp_step
-        
+    
+    def new(self, temp = Temp):
+        self.temp = Temp
+        self.score = 0
