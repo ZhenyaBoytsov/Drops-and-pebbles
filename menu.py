@@ -1,123 +1,93 @@
-#import balls
-import frog
-import math
 import tkinter as tk
-import sys
-import tkinter.simpledialog
-import pickle
-import os.path
-import random 
+from tkinter.font import BOLD
 
-class MainWindow(tk.Frame):
+#sizes
+Xsize = 800
+Ysize = 600
+
+class menu:
+    def __init__(self, x, y, canv, xsize = Xsize, ysize = Ysize):
+        self.x = x 
+        self.y = y 
+        self.xsize = xsize
+        self.ysize = ysize
+        self.canv = canv
+        self.visability = 0
+        self.mode = 1
+        self.language = 0
+        
+    def clean(self):
+        self.canv.delete(self.text1)
+        self.canv.delete(self.text2)
+        self.canv.delete(self.text3)
+        self.canv.delete(self.text4)
     
-    username = ''
-    userresult = 0
-    result = {}
-    timer = 10
-
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.pack()
-        super()._root().geometry('800x600')  
-        self.topFrame = tk.Frame(super()._root())
-        self.lblUserName = tk.Label(self.topFrame)
-        self.lblBestResult = tk.Label(self.topFrame)
-        self.lblTimer = tk.Label(self.topFrame)
-        self.topFrame.pack(side=tk.TOP, fill=tk.BOTH)        
-        self.lblUserName.pack(side = tk.LEFT)        
-        self.lblBestResult.pack(side = tk.LEFT)
-        self.lblTimer.pack(side = tk.RIGHT)
-
-        self.canv = tk.Canvas(super()._root(), bg='white')        
-        self.canv.pack(fill=tk.BOTH, expand=True)
-                
-        self.mainmenu = tk.Menu(super()._root())
-        super()._root().config(menu=self.mainmenu)
-        self.mainmenu.add_command(label='Начать игру', command=self.startgame)
-        self.mainmenu.add_command(label='Результаты', command=self.viewresult)
-        self.mainmenu.add_command(label='Выход', command=self.endgame)
-
-                    
-    def update_timer(self):        
-        self.timer+=-1
-        self.lblTimer.configure(text="Осталось: " + str(self.timer) + " секунд", font="Arial 16")
-        if (self.timer > 0):
-            super()._root().after(1000, self.update_timer)
+    def write(self):
+        l = 0.8*self.xsize/2
+        h = 0.2*self.ysize
+        dh = 0.2*h
+        if (self.language):
+            self.text1 = self.canv.create_text(self.x, self.y - self.ysize/2 +1*dh + 0.5*h, font=('arial', int(self.ysize/12), BOLD), text = "НОВАЯ ИГРА")
+            self.text2 = self.canv.create_text(self.x, self.y - self.ysize/2 +2*dh + 1.5*h, font=('arial', int(self.ysize/12), BOLD), text = "РЕКОРДЫ")
+            self.text3 = self.canv.create_text(self.x, self.y - self.ysize/2 +3*dh + 2.5*h, font=('arial', int(self.ysize/12), BOLD), text = "ЯЗЫК")
+            self.text4 = self.canv.create_text(self.x, self.y - self.ysize/2 +4*dh + 3.5*h, font=('arial', int(self.ysize/12), BOLD), text = "ВЫХОД")
         else:
-            self.writeresult('datafile.pkl', random.randrange(1,100))                 
-
-    def startgame(self):        
-        self.username = tk.simpledialog.askstring('', 'Введите имя:', parent=super()._root())
-        if len(self.username) > 0:
-            #загружаем предыдущие результаты
-            self.result = self.readresult('datafile.pkl')                     
-            self.lblUserName.config(text='Игрок: ' + self.username, font="Arial 16")            
-            if self.username in self.result:
-                self.lblBestResult.config(text='    Лучший результат: ' + str(self.result[self.username]), font="Arial 16")
-            else:
-                self.lblBestResult.config(text='    Лучший результат: 0', font="Arial 16")
-
-            #запускаем игру
-            
-            self.update_timer()
-
-                                
-    def viewresult(self):
-        win = tk.Toplevel(super()._root())
-        win.geometry('400x300')
-        win.title('Результаты')
-        bottomFrame = tk.Frame(win)
-        bottomFrame.pack(side = tk.BOTTOM, fill=tk.BOTH)
-        lb = tk.Listbox(win)
-        lb.configure(font="Courier 8")
-        lb.pack(fill=tk.BOTH, expand=True)
-        btnClose = tk.Button(bottomFrame, text='Закрыть', command=win.destroy)
-        btnClose.pack()
-
-        self.result = self.readresult('datafile.pkl')
-       
-        l = list(self.result.items())
-        l.sort(key = lambda i:i[1], reverse = True)
-        for obj in l:
-            lb.insert(tk.END, '{0:25}{1:10}'.format(str(obj[0]), str(obj[1])))
-
-    def readresult(self, filename):
-        result = {}
-        if os.path.exists(filename) == True: 
-            file = open(filename, 'rb')
-            result = pickle.load(file)
-            file.close()
-            return result
-        
-        return result
-                          
-    def writeresult(self, filename, newresult):
-        if os.path.exists(filename) == False: 
-            file = open(filename, 'wb')                    
-            d = {}
-            pickle.dump(d, file)
-            file.close()
-        
-        if len(self.username) > 0:
-            if self.username not in self.result:
-                self.result[self.username] = newresult
-            elif newresult > self.result[self.username]:
-                self.result[self.username] = newresult
-        
-            file = open(filename, 'wb')
-            pickle.dump(self.result, file)
-            file.close()
-
-    def endgame(self):
-        self.writeresult('datafile.pkl', random.randrange(1,100))# временный вывод результата  
-        super()._root().destroy()
-
+            self.text1 = self.canv.create_text(self.x, self.y - self.ysize/2 +1*dh + 0.5*h, font=('arial', int(self.ysize/12), BOLD), text = "NEW GAME")
+            self.text2 = self.canv.create_text(self.x, self.y - self.ysize/2 +2*dh + 1.5*h, font=('arial', int(self.ysize/12), BOLD), text = "BEST RESULTS")
+            self.text3 = self.canv.create_text(self.x, self.y - self.ysize/2 +3*dh + 2.5*h, font=('arial', int(self.ysize/12), BOLD), text = "LANGUAGE")
+            self.text4 = self.canv.create_text(self.x, self.y - self.ysize/2 +4*dh + 3.5*h, font=('arial', int(self.ysize/12), BOLD), text = "QUIT")
     
-if __name__ == '__main__':        
-    MyGame = MainWindow()
-    MyGame.master.title("Игра")      
-    MyGame.master.geometry('800x600')        
-    MyGame.mainloop()   
+    def show(self):
+        self.visability = 1
+        self.bg = self.canv.create_rectangle(self.x - self.xsize/2, self.y - self.ysize/2, self.x + self.xsize/2, self.y + self.ysize/2, fill="yellow")
+        l = 0.8*self.xsize/2
+        h = 0.2*self.ysize
+        dh = 0.2*h
+        self.str1 = self.canv.create_rectangle(self.x - l, self.y - self.ysize/2 + dh, self.x + l, self.y - self.ysize/2 +dh + h, fill="red")
+        self.str2 = self.canv.create_rectangle(self.x - l, self.y - self.ysize/2 +2*dh + h, self.x + l, self.y - self.ysize/2 +2*dh + 2*h, fill="red")
+        self.str3 = self.canv.create_rectangle(self.x - l, self.y - self.ysize/2 +3*dh + 2*h, self.x + l, self.y - self.ysize/2 +3*dh + 3*h, fill="red")
+        self.str4 = self.canv.create_rectangle(self.x - l, self.y - self.ysize/2 +4*dh + 3*h, self.x + l, self.y - self.ysize/2 +4*dh + 4*h, fill="red")
+        self.write()
+    
+    def close(self):
+        self.canv.delete(self.bg)
+        self.canv.delete(self.str1)
+        self.canv.delete(self.str2)
+        self.canv.delete(self.str3)
+        self.canv.delete(self.str4)
+        self.canv.delete(self.text1)
+        self.canv.delete(self.text2)
+        self.canv.delete(self.text3)
+        self.canv.delete(self.text4)
+        self.visability = 0
+    
+    def use_button(self, event):
+        l = 0.8*self.xsize/2
+        h = 0.2*self.ysize
+        dh = 0.2*h
+        if (self.visability == 0): return
+        norm_x = ((event.x > self.x - l) and (event.x < self.x + l))
+        if (not norm_x): return
+        y1 = ((event.y > self.y - self.ysize/2 + dh) and (event.y < self.y - self.ysize/2 +dh + h))
+        y2 = ((event.y > self.y - self.ysize/2 + 2*dh + h) and (event.y < self.y - self.ysize/2 +2*dh + 2*h))
+        y3 = ((event.y > self.y - self.ysize/2 + 3*dh + 2*h) and (event.y < self.y - self.ysize/2 +3*dh + 3*h))
+        y4 = ((event.y > self.y - self.ysize/2 + 4*dh + 3*h) and (event.y < self.y - self.ysize/2 +4*dh + 4*h))
+        
+        if y1:
+            self.mode = 1
+            self.visability = 0
+        elif y2:
+            self.canv.delete(self.text2)
+            if (self.language): t = "ТЫ ВСЕГДА ЛУЧШИЙ!"
+            else: t = "YOU'RE ALWAYS THE BEST!"
+            self.text2 = self.canv.create_text(self.x, self.y - self.ysize/2 +2*dh + 1.5*h, font=('arial', int(self.ysize/20), BOLD), text = t)
+        elif y3:
+            self.language = 1 - self.language
+            self.clean()
+            self.write()
+        elif y4:
+            self.mode = 0
+            self. visability = 0   
 
 
 
